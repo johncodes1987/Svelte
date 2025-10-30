@@ -1,22 +1,21 @@
 <script lang='ts'>
     let {
         name,
-        fake_name = "null"
         } : {
             name: string;
-            fake_name?: string | null;
         } = $props();
 </script>
 
-<h1>Hello {name}</h1>
-<h2>{name.replace('o', 'x')}</h2>
-
-{fake_name}
+<div>
+    <h1>
+        {name ? name : 'User'}'s Form
+    </h1>
+</div>
 
 
 <style>
-    h1 {
-        color: red;
-    }
+    /* div {
+        background: red;
+    } */
 </style>
 

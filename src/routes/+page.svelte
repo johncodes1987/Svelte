@@ -1,57 +1,67 @@
 <script lang="ts">
 	import Header from './Header.svelte';
 
-	let formState = $state({
+	type FormState = {
+		name: string;
+		birthday: string;
+		step: number;
+		error: string;
+		[key: string]: string | number;
+	};
+
+	let formState: FormState = $state({
 		name: '',
 		birthday: '',
 		step: 0,
 		error: ''
 	});
+
+	const questions = [
+		{
+			question: 'What is your name?',
+			id: 'name',
+			type: 'text'
+		}
+	];
 </script>
+
+<Header name={formState.name} />
 
 <main>
 	<p>Step: {formState.step + 1}</p>
 
+	{#each questions as question (question.id)}
+		{@render formStep(question)}
+	{/each}
+
+	<!-- {#each questions as { id, question, type } (id)}
+		{@render formStep({ question, id, type })}
+	{/each} -->
+
 	{#if formState.error}
 		<p class="error">{formState.error}</p>
 	{/if}
-
-	{#if formState.step === 0}
-		<div>
-			<label for="name">Your Name:</label>
-			<input type="text" id="name" bind:value={formState.name} />
-		</div>
-		<button
-			onclick={() => {
-				if (formState.name !== '') {
-					formState.step += 1;
-					formState.error = '';
-				} else {
-					formState.error = 'Please enter your name';
-				}
-			}}>Next</button
-		>
-	{:else if formState.step === 1}
-		<div>
-			<label for="bday">Your Birthday:</label>
-			<input type="date" id="bday" bind:value={formState.birthday} />
-		</div>
-		<button
-			onclick={() => {
-				if (formState.birthday !== '') {
-					formState.step += 1;
-					formState.error = '';
-				} else {
-					formState.error = 'Please enter your birthday';
-				}
-			}}>Next</button
-		>
-	{/if}
 </main>
 
+{#snippet formStep({ question, id, type }: { question: string; id: string; type: string })}
+	<article>
+		<div>
+			<label for={id}>{question}</label>
+			<input {type} {id} bind:value={formState[id]} />
+		</div>
+	</article>
+{/snippet}
+
 <style>
-    .error {
-        color: red;
-        font-weight: bold;
-    }
+	/* div {
+        background: blue;
+    } */
+	/* :global(div) {
+        background: blue;
+    } */
+	/* Above would make every div in your webpage blue */
+	.error {
+		color: red;
+		font-weight: bold;
+	}
 </style>
