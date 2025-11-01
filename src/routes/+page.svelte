@@ -2,16 +2,13 @@
 	import Header from './Header.svelte';
 
 	type FormState = {
-		name: string;
-		birthday: string;
+		answers: { [key: string]: string };
 		step: number;
 		error: string;
-		[key: string]: string | number;
 	};
 
 	let formState: FormState = $state({
-		name: '',
-		birthday: '',
+		answers: {},
 		step: 0,
 		error: ''
 	});
@@ -21,17 +18,42 @@
 			question: 'What is your name?',
 			id: 'name',
 			type: 'text'
+		},
+		{
+			question: 'When were you born?',
+			id: 'birthday',
+			type: 'date'
+		},
+		{
+			question: 'What is your favorite color?',
+			id: 'favoriteColor',
+			type: 'color'
 		}
 	];
+
+	function nextStep(id: string) {
+		if (formState.answers[id] && formState.answers[id] !== '') {
+			formState.step += 1;
+			formState.error = '';
+		} else {
+			formState.error = 'Please answer the question';
+		}
+	}
 </script>
 
-<Header name={formState.name} />
+<Header name={formState.answers.name} />
 
 <main>
+	{#if formState.step >= questions.length}
+	<p>Thank You!</p>
+	{:else}
 	<p>Step: {formState.step + 1}</p>
+	{/if}
 
-	{#each questions as question (question.id)}
-		{@render formStep(question)}
+	{#each questions as question, index (question.id)}
+		{#if formState.step === index}
+			{@render formStep(question)}
+		{/if}
 	{/each}
 
 	<!-- {#each questions as { id, question, type } (id)}
@@ -47,8 +69,9 @@
 	<article>
 		<div>
 			<label for={id}>{question}</label>
-			<input {type} {id} bind:value={formState[id]} />
+			<input {type} {id} bind:value={formState.answers[id]} />
 		</div>
+		<button onclick={() => nextStep(id)}>Next</button>
 	</article>
 {/snippet}
 
