@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fly } from 'svelte/transition';
 	import Header from './Header.svelte';
 
 	type FormState = {
@@ -12,6 +13,8 @@
 		step: 0,
 		error: ''
 	});
+
+	$inspect(formState.step);
 
 	const questions = [
 		{
@@ -39,20 +42,45 @@
 			formState.error = 'Please answer the question';
 		}
 	}
+
+	// Will run onMount
+	$effect(() => {
+		console.log('on mounted');
+		return () => {
+			// when unmounted or destroyed
+			// before effect Re-runs
+			console.log('on unmounted');
+		};
+	});
+
+	$effect(() => {
+		// This will re-run every time formState changes
+		console.log('formState', formState.step);
+		// DON'T create state based off other state, in effects to avoid infinite loops
+		// use $derived()
+		return () => {
+			// before effect Re-runs
+			console.log('before formState re-runs', formState.step);
+		};
+	});
 </script>
 
 <Header name={formState.answers.name} />
 
 <main>
 	{#if formState.step >= questions.length}
-	<p>Thank You!</p>
+		<p>Thank You!</p>
 	{:else}
-	<p>Step: {formState.step + 1}</p>
+		<p>Step: {formState.step + 1}</p>
 	{/if}
 
 	{#each questions as question, index (question.id)}
 		{#if formState.step === index}
-			{@render formStep(question)}
+			<div 
+				in:fly={{ x: 200, duration: 200, opacity: 0, delay: 200 }} 
+				out:fly={{ x: -200, duration: 200 }}>
+				{@render formStep(question)}
+			</div>
 		{/if}
 	{/each}
 
